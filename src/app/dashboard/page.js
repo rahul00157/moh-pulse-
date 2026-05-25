@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import ScoreCard from '@/components/ScoreCard';
+import ActionCards from '@/components/ActionCards';
 
 const scoreCards = [
   {
@@ -71,6 +72,9 @@ export default function DashboardPage() {
             <ScoreCard key={card.title} {...card} />
           ))}
         </div>
+
+        {/* Weekly action cards */}
+        <ActionCards />
       </main>
     </div>
   );
