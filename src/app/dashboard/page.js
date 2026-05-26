@@ -2,49 +2,45 @@ import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import ScoreCard from '@/components/ScoreCard';
 import ActionCards from '@/components/ActionCards';
+import { fetchCampaignInsights } from '@/lib/metaApi';
 
-const scoreCards = [
-  {
-    title: 'Ad Spend',
-    score: 72,
-    subtitle: '₹45,000 spent · ₹12,600 wasted',
-    trend: 'up',
-    color: '#f97316',
-    glowColor: 'rgba(249,115,22,0.14)',
-    borderColor: 'rgba(249,115,22,0.22)',
-    ringBg: 'rgba(249,115,22,0.09)',
-  },
-  {
-    title: 'Revenue from Ads',
-    score: 81,
-    subtitle: '₹1,82,000 revenue this month',
-    trend: 'up',
-    color: '#f59e0b',
-    glowColor: 'rgba(245,158,11,0.14)',
-    borderColor: 'rgba(245,158,11,0.22)',
-    ringBg: 'rgba(245,158,11,0.09)',
-  },
-  {
-    title: 'ROAS',
-    score: 80,
-    subtitle: '4.04x return on ad spend',
-    trend: 'up',
-    color: '#22c55e',
-    glowColor: 'rgba(34,197,94,0.14)',
-    borderColor: 'rgba(34,197,94,0.22)',
-    ringBg: 'rgba(34,197,94,0.09)',
-  },
-  {
-    title: 'Active Campaigns',
-    score: 75,
-    subtitle: '3 campaigns running this week',
-    trend: 'up',
-    color: '#8b5cf6',
-    glowColor: 'rgba(139,92,246,0.14)',
-    borderColor: 'rgba(139,92,246,0.22)',
-    ringBg: 'rgba(139,92,246,0.09)',
-  },
-];
+async function getMetaStats() {
+  const token = process.env.META_TEST_ACCESS_TOKEN;
+  const accountId = process.env.META_TEST_AD_ACCOUNT_ID;
+  if (!token || !accountId) return null;
+
+  try {
+    const result = await fetchCampaignInsights(token, accountId);
+    const campaigns = result.data ?? [];
+
+    let totalSpend = 0;
+    let totalReach = 0;
+    let cpcSum = 0;
+    let cpmSum = 0;
+    let insightCount = 0;
+
+    for (const campaign of campaigns) {
+      const ins = campaign.insights?.data?.[0];
+      if (!ins) continue;
+      totalSpend += parseFloat(ins.spend || 0);
+      totalReach += parseInt(ins.reach || 0, 10);
+      cpcSum += parseFloat(ins.cpc || 0);
+      cpmSum += parseFloat(ins.cpm || 0);
+      insightCount++;
+    }
+
+    return {
+      totalSpend,
+      totalReach,
+      avgCpc: insightCount ? cpcSum / insightCount : 0,
+      avgCpm: insightCount ? cpmSum / insightCount : 0,
+      campaignCount: campaigns.length,
+    };
+  } catch (err) {
+    console.error('[dashboard] Meta API error:', err.message);
+    return null;
+  }
+}
 
 const competitors = [
   {
@@ -86,7 +82,74 @@ const competitors = [
   },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const stats = await getMetaStats();
+
+  const fmtINR = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`;
+  const fmtINRDecimal = (n) => `₹${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const fmtNum = (n) => n.toLocaleString('en-IN');
+
+  // CPC score: lower is better. ₹5 → ~90, ₹15 → ~50, ₹25+ → ~5
+  const cpcScore = stats?.avgCpc > 0
+    ? Math.max(5, Math.min(95, Math.round(95 - (stats.avgCpc / 20) * 80)))
+    : 0;
+
+  // CPM score: lower is better. ₹50 → ~90, ₹150 → ~50, ₹250+ → ~5
+  const cpmScore = stats?.avgCpm > 0
+    ? Math.max(5, Math.min(95, Math.round(95 - (stats.avgCpm / 200) * 80)))
+    : 0;
+
+  const scoreCards = [
+    {
+      title: 'Total Spend',
+      score: stats ? 72 : 0,
+      subtitle: stats?.totalSpend > 0
+        ? `${fmtINR(stats.totalSpend)} last 30 days`
+        : 'No spend data',
+      trend: 'up',
+      color: '#f97316',
+      glowColor: 'rgba(249,115,22,0.14)',
+      borderColor: 'rgba(249,115,22,0.22)',
+      ringBg: 'rgba(249,115,22,0.09)',
+    },
+    {
+      title: 'Total Reach',
+      score: stats ? 81 : 0,
+      subtitle: stats?.totalReach > 0
+        ? `${fmtNum(stats.totalReach)} people reached`
+        : 'No reach data',
+      trend: 'up',
+      color: '#f59e0b',
+      glowColor: 'rgba(245,158,11,0.14)',
+      borderColor: 'rgba(245,158,11,0.22)',
+      ringBg: 'rgba(245,158,11,0.09)',
+    },
+    {
+      title: 'Avg CPC',
+      score: cpcScore,
+      subtitle: stats?.avgCpc > 0
+        ? `${fmtINRDecimal(stats.avgCpc)} per click`
+        : 'No CPC data',
+      trend: cpcScore >= 60 ? 'up' : 'down',
+      color: '#22c55e',
+      glowColor: 'rgba(34,197,94,0.14)',
+      borderColor: 'rgba(34,197,94,0.22)',
+      ringBg: 'rgba(34,197,94,0.09)',
+    },
+    {
+      title: 'Avg CPM',
+      score: cpmScore,
+      subtitle: stats?.avgCpm > 0
+        ? `${fmtINRDecimal(stats.avgCpm)} per 1K impressions`
+        : 'No CPM data',
+      trend: cpmScore >= 60 ? 'up' : 'down',
+      color: '#8b5cf6',
+      glowColor: 'rgba(139,92,246,0.14)',
+      borderColor: 'rgba(139,92,246,0.22)',
+      ringBg: 'rgba(139,92,246,0.09)',
+    },
+  ];
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#080d1a' }}>
       <Navbar />
@@ -138,23 +201,18 @@ export default function DashboardPage() {
                   boxShadow: '0 0 28px rgba(139,92,246,0.1), 0 4px 20px rgba(0,0,0,0.4)',
                 }}
               >
-                {/* Top purple accent line */}
                 <div
                   className="absolute top-0 left-0 right-0 h-px"
                   style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.6), transparent)' }}
                 />
-
-                {/* Ambient glow top-right */}
                 <div
                   className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
                   style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)' }}
                 />
 
                 <div className="relative z-10 p-5 flex flex-col gap-4">
-                  {/* Header row */}
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      {/* Avatar */}
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                         style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,70,229,0.3))', border: '1px solid rgba(139,92,246,0.3)' }}
@@ -163,9 +221,7 @@ export default function DashboardPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                       </div>
-
                       <div>
-                        {/* Blurred competitor name */}
                         <div className="flex items-center gap-1.5">
                           <span className="text-white font-bold text-sm blur-sm select-none pointer-events-none">
                             {c.label}
@@ -177,14 +233,11 @@ export default function DashboardPage() {
                         <span className="text-[11px] text-violet-400 font-medium">{c.tag}</span>
                       </div>
                     </div>
-
-                    {/* Tracking badge */}
                     <span className="text-[10px] font-bold tracking-wider text-violet-300 bg-violet-500/10 border border-violet-500/20 px-2 py-1 rounded-md uppercase flex-shrink-0">
                       Tracking
                     </span>
                   </div>
 
-                  {/* Stats */}
                   <div className="space-y-2.5">
                     <div className="flex items-start gap-2.5 text-slate-300 text-sm">
                       <span className="text-violet-400">{c.stat1Icon}</span>
@@ -196,10 +249,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Divider */}
                   <div className="h-px bg-white/[0.05]" />
 
-                  {/* View Details button */}
                   <button
                     className="w-full py-2 rounded-lg text-sm font-semibold text-violet-300 transition-all duration-150 hover:text-violet-100 hover:bg-violet-500/10 active:scale-[0.98] flex items-center justify-center gap-1.5"
                     style={{ border: '1px solid rgba(139,92,246,0.25)' }}
@@ -223,7 +274,6 @@ export default function DashboardPage() {
             boxShadow: '0 0 60px rgba(124,58,237,0.35), 0 0 120px rgba(124,58,237,0.15), 0 8px 32px rgba(0,0,0,0.5)',
           }}
         >
-          {/* Decorative circles */}
           <div
             className="absolute -top-12 -left-12 w-48 h-48 rounded-full pointer-events-none"
             style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.15) 0%, transparent 70%)' }}
@@ -237,7 +287,6 @@ export default function DashboardPage() {
             style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }}
           />
 
-          {/* Text */}
           <div className="relative z-10 flex-1">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-violet-300 text-lg">✨</span>
@@ -252,7 +301,6 @@ export default function DashboardPage() {
             </h3>
           </div>
 
-          {/* CTA button */}
           <div className="relative z-10 flex-shrink-0">
             <button
               className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all duration-200 hover:scale-105 active:scale-[0.97]"

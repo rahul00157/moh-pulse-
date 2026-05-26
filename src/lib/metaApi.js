@@ -29,6 +29,16 @@ export async function exchangeCodeForToken(code) {
   return data;
 }
 
+export async function fetchCampaignInsights(accessToken, adAccountId) {
+  const { data } = await axios.get(`${BASE_URL}/act_${adAccountId}/campaigns`, {
+    params: {
+      fields: "name,status,insights.date_preset(last_30d){cpc,cpm,reach,spend}",
+      access_token: accessToken,
+    },
+  });
+  return data;
+}
+
 export async function fetchAdAccounts(accessToken) {
   const { data } = await axios.get(`${BASE_URL}/me/adaccounts`, {
     params: {
