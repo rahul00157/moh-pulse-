@@ -1,8 +1,8 @@
+import axios from "axios";
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import ScoreCard from '@/components/ScoreCard';
 import ActionCards from '@/components/ActionCards';
-import { fetchCampaignInsights } from '@/lib/metaApi';
 
 async function getMetaStats() {
   const token = process.env.META_TEST_ACCESS_TOKEN;
@@ -10,36 +10,67 @@ async function getMetaStats() {
   if (!token || !accountId) return null;
 
   try {
-    const result = await fetchCampaignInsights(token, accountId);
-    const campaigns = result.data ?? [];
+    const { data } = await axios.get(
+      `https://graph.facebook.com/v19.0/act_${accountId}/insights`,
+      {
+        params: {
+          fields: "spend,reach,clicks,cpc,cpm,impressions,actions",
+          time_range: JSON.stringify({ since: "2026-04-26", until: "2026-05-26" }),
+          access_token: token,
+        },
+      }
+    );
 
-    let totalSpend = 0;
-    let totalReach = 0;
-    let cpcSum = 0;
-    let cpmSum = 0;
-    let insightCount = 0;
+    const ins = data.data?.[0];
+    if (!ins) return null;
 
-    for (const campaign of campaigns) {
-      const ins = campaign.insights?.data?.[0];
-      if (!ins) continue;
-      totalSpend += parseFloat(ins.spend || 0);
-      totalReach += parseInt(ins.reach || 0, 10);
-      cpcSum += parseFloat(ins.cpc || 0);
-      cpmSum += parseFloat(ins.cpm || 0);
-      insightCount++;
-    }
+    const spend       = parseFloat(ins.spend       || 0);
+    const reach       = parseInt(ins.reach         || 0, 10);
+    const clicks      = parseInt(ins.clicks        || 0, 10);
+    const cpc         = parseFloat(ins.cpc         || 0);
+    const cpm         = parseFloat(ins.cpm         || 0);
+    const impressions = parseInt(ins.impressions   || 0, 10);
+    const actions     = ins.actions                || [];
 
-    return {
-      totalSpend,
-      totalReach,
-      avgCpc: insightCount ? cpcSum / insightCount : 0,
-      avgCpm: insightCount ? cpmSum / insightCount : 0,
-      campaignCount: campaigns.length,
-    };
+    const totalEngagement = actions.reduce(
+      (sum, a) => sum + parseInt(a.value || 0, 10), 0
+    );
+    const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+
+    return { spend, reach, clicks, cpc, cpm, impressions, actions, totalEngagement, ctr };
   } catch (err) {
     console.error('[dashboard] Meta API error:', err.message);
     return null;
   }
+}
+
+function moneyEfficiencyScore(cpc) {
+  if (!cpc) return 0;
+  if (cpc < 1.50) return Math.min(100, Math.round(80 + ((1.50 - cpc) / 1.50) * 20));
+  if (cpc <= 3.00) return Math.round(80 - ((cpc - 1.50) / 1.50) * 30);
+  return Math.max(0, Math.round(50 - ((cpc - 3.00) / 3.00) * 50));
+}
+
+function audienceMatchScore(ctr) {
+  if (!ctr) return 0;
+  if (ctr > 3)  return Math.min(100, Math.round(80 + ((ctr - 3) / 3) * 20));
+  if (ctr >= 1) return Math.round(50 + ((ctr - 1) / 2) * 30);
+  return Math.max(0, Math.round((ctr / 1) * 50));
+}
+
+function contentPerformanceScore(totalEngagement, reach) {
+  if (!reach) return 0;
+  const engRate = (totalEngagement / reach) * 100;
+  if (engRate > 10) return Math.min(100, Math.round(80 + ((engRate - 10) / 10) * 20));
+  if (engRate >= 3) return Math.round(50 + ((engRate - 3) / 7) * 30);
+  return Math.max(0, Math.round((engRate / 3) * 50));
+}
+
+function growthMomentumScore(reach) {
+  if (!reach) return 0;
+  if (reach > 5000)  return Math.min(100, Math.round(80 + ((reach - 5000) / 5000) * 20));
+  if (reach >= 1000) return Math.round(50 + ((reach - 1000) / 4000) * 30);
+  return Math.max(0, Math.round((reach / 1000) * 50));
 }
 
 const competitors = [
@@ -85,70 +116,68 @@ const competitors = [
 export default async function DashboardPage() {
   const stats = await getMetaStats();
 
-  const fmtINR = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`;
-  const fmtINRDecimal = (n) => `₹${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const fmtNum = (n) => n.toLocaleString('en-IN');
+  const fmt2   = (n) => n.toFixed(2);
+  const fmtNum = (n) => n.toLocaleString('en-US');
 
-  // CPC score: lower is better. ₹5 → ~90, ₹15 → ~50, ₹25+ → ~5
-  const cpcScore = stats?.avgCpc > 0
-    ? Math.max(5, Math.min(95, Math.round(95 - (stats.avgCpc / 20) * 80)))
-    : 0;
-
-  // CPM score: lower is better. ₹50 → ~90, ₹150 → ~50, ₹250+ → ~5
-  const cpmScore = stats?.avgCpm > 0
-    ? Math.max(5, Math.min(95, Math.round(95 - (stats.avgCpm / 200) * 80)))
-    : 0;
+  const s1 = moneyEfficiencyScore(stats?.cpc);
+  const s2 = audienceMatchScore(stats?.ctr);
+  const s3 = contentPerformanceScore(stats?.totalEngagement, stats?.reach);
+  const s4 = growthMomentumScore(stats?.reach);
 
   const scoreCards = [
     {
-      title: 'Total Spend',
-      score: stats ? 72 : 0,
-      subtitle: stats?.totalSpend > 0
-        ? `${fmtINR(stats.totalSpend)} last 30 days`
-        : 'No spend data',
-      trend: 'up',
+      title: 'Money Efficiency',
+      score: s1,
+      subtitle: stats ? `Total Spend: $${fmt2(stats.spend)}` : 'No data',
+      trend: s1 >= 50 ? 'up' : 'down',
       color: '#f97316',
       glowColor: 'rgba(249,115,22,0.14)',
       borderColor: 'rgba(249,115,22,0.22)',
       ringBg: 'rgba(249,115,22,0.09)',
     },
     {
-      title: 'Total Reach',
-      score: stats ? 81 : 0,
-      subtitle: stats?.totalReach > 0
-        ? `${fmtNum(stats.totalReach)} people reached`
-        : 'No reach data',
-      trend: 'up',
+      title: 'Audience Match',
+      score: s2,
+      subtitle: stats ? `Total Reach: ${fmtNum(stats.reach)}` : 'No data',
+      trend: s2 >= 50 ? 'up' : 'down',
       color: '#f59e0b',
       glowColor: 'rgba(245,158,11,0.14)',
       borderColor: 'rgba(245,158,11,0.22)',
       ringBg: 'rgba(245,158,11,0.09)',
     },
     {
-      title: 'Avg CPC',
-      score: cpcScore,
-      subtitle: stats?.avgCpc > 0
-        ? `${fmtINRDecimal(stats.avgCpc)} per click`
-        : 'No CPC data',
-      trend: cpcScore >= 60 ? 'up' : 'down',
+      title: 'Content Performance',
+      score: s3,
+      subtitle: stats ? `Total Clicks: ${fmtNum(stats.clicks)}` : 'No data',
+      trend: s3 >= 50 ? 'up' : 'down',
       color: '#22c55e',
       glowColor: 'rgba(34,197,94,0.14)',
       borderColor: 'rgba(34,197,94,0.22)',
       ringBg: 'rgba(34,197,94,0.09)',
     },
     {
-      title: 'Avg CPM',
-      score: cpmScore,
-      subtitle: stats?.avgCpm > 0
-        ? `${fmtINRDecimal(stats.avgCpm)} per 1K impressions`
-        : 'No CPM data',
-      trend: cpmScore >= 60 ? 'up' : 'down',
+      title: 'Growth Momentum',
+      score: s4,
+      subtitle: stats ? `Impressions: ${fmtNum(stats.impressions)}` : 'No data',
+      trend: s4 >= 50 ? 'up' : 'down',
       color: '#8b5cf6',
       glowColor: 'rgba(139,92,246,0.14)',
       borderColor: 'rgba(139,92,246,0.22)',
       ringBg: 'rgba(139,92,246,0.09)',
     },
   ];
+
+  // Serialisable insights passed down to the client ActionCards component
+  const insights = stats
+    ? {
+        cpc: stats.cpc,
+        ctr: stats.ctr,
+        reach: stats.reach,
+        spend: stats.spend,
+        clicks: stats.clicks,
+        impressions: stats.impressions,
+      }
+    : null;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#080d1a' }}>
@@ -176,8 +205,8 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        {/* Weekly action cards */}
-        <ActionCards />
+        {/* Weekly action cards — real insights injected */}
+        <ActionCards insights={insights} />
 
         {/* ── Section 1: Competitor Activity ── */}
         <section className="mt-10">
@@ -274,18 +303,12 @@ export default async function DashboardPage() {
             boxShadow: '0 0 60px rgba(124,58,237,0.35), 0 0 120px rgba(124,58,237,0.15), 0 8px 32px rgba(0,0,0,0.5)',
           }}
         >
-          <div
-            className="absolute -top-12 -left-12 w-48 h-48 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.15) 0%, transparent 70%)' }}
-          />
-          <div
-            className="absolute -bottom-10 -right-10 w-56 h-56 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)' }}
-          />
-          <div
-            className="absolute top-0 left-0 right-0 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }}
-          />
+          <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.15) 0%, transparent 70%)' }} />
+          <div className="absolute -bottom-10 -right-10 w-56 h-56 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)' }} />
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
 
           <div className="relative z-10 flex-1">
             <div className="flex items-center gap-2 mb-2">
