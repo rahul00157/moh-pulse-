@@ -1,7 +1,14 @@
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
+
 export default function SettingsPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold">Settings</h1>
+    <div className="min-h-screen" style={{ backgroundColor: '#ffffff' }}>
+      <Navbar />
+      <Sidebar />
+      <main className="ml-[240px] pt-[60px] min-h-screen p-8 flex items-center justify-center">
+        <h1 className="text-4xl font-bold text-[#0f172a]">Settings</h1>
+      </main>
     </div>
   );
 }

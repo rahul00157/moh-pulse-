@@ -180,20 +180,20 @@ export default async function DashboardPage() {
     : null;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#080d1a' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#ffffff' }}>
       <Navbar />
       <Sidebar />
 
       <main
         className="ml-[240px] pt-[60px] min-h-screen p-8"
-        style={{ backgroundColor: '#080d1a' }}
+        style={{ backgroundColor: '#ffffff' }}
       >
         {/* Page header */}
         <div className="mb-8">
-          <h1 className="text-[32px] font-bold text-white leading-tight tracking-tight">
+          <h1 className="text-[32px] font-bold text-[#0f172a] leading-tight tracking-tight">
             Good morning, Rahul 👋
           </h1>
-          <p className="text-[#4a5568] text-base mt-2">
+          <p className="text-[#64748b] text-base mt-2">
             Here is your marketing health report for this week
           </p>
         </div>
@@ -211,10 +211,10 @@ export default async function DashboardPage() {
         {/* ── Section 1: Competitor Activity ── */}
         <section className="mt-10">
           <div className="flex items-center gap-3 mb-5">
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-lg font-bold text-[#0f172a] tracking-tight">
               👀 Competitor Activity This Week
             </h2>
-            <span className="text-[11px] font-semibold text-violet-400 bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full">
               LIVE
             </span>
           </div>
@@ -225,18 +225,14 @@ export default async function DashboardPage() {
                 key={c.id}
                 className="relative rounded-xl overflow-hidden"
                 style={{
-                  backgroundColor: '#111827',
-                  border: '1px solid rgba(139,92,246,0.22)',
-                  boxShadow: '0 0 28px rgba(139,92,246,0.1), 0 4px 20px rgba(0,0,0,0.4)',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 1px 4px rgba(15,23,42,0.06)',
                 }}
               >
                 <div
                   className="absolute top-0 left-0 right-0 h-px"
-                  style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.6), transparent)' }}
-                />
-                <div
-                  className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
-                  style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)' }}
+                  style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.4), transparent)' }}
                 />
 
                 <div className="relative z-10 p-5 flex flex-col gap-4">
@@ -244,32 +240,32 @@ export default async function DashboardPage() {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,70,229,0.3))', border: '1px solid rgba(139,92,246,0.3)' }}
+                        style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.12), rgba(79,70,229,0.12))', border: '1px solid rgba(124,58,237,0.2)' }}
                       >
-                        <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg className="w-5 h-5 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-white font-bold text-sm blur-sm select-none pointer-events-none">
+                          <span className="text-[#0f172a] font-bold text-sm blur-sm select-none pointer-events-none">
                             {c.label}
                           </span>
                           <svg className="w-3 h-3 text-violet-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        <span className="text-[11px] text-violet-400 font-medium">{c.tag}</span>
+                        <span className="text-[11px] text-violet-600 font-medium">{c.tag}</span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold tracking-wider text-violet-300 bg-violet-500/10 border border-violet-500/20 px-2 py-1 rounded-md uppercase flex-shrink-0">
+                    <span className="text-[10px] font-bold tracking-wider text-violet-600 bg-violet-50 border border-violet-200 px-2 py-1 rounded-md uppercase flex-shrink-0">
                       Tracking
                     </span>
                   </div>
 
                   <div className="space-y-2.5">
-                    <div className="flex items-start gap-2.5 text-slate-300 text-sm">
-                      <span className="text-violet-400">{c.stat1Icon}</span>
+                    <div className="flex items-start gap-2.5 text-[#475569] text-sm">
+                      <span className="text-violet-500">{c.stat1Icon}</span>
                       {c.stat1}
                     </div>
                     <div className={`flex items-start gap-2.5 text-sm ${c.stat2Color}`}>
@@ -278,11 +274,11 @@ export default async function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="h-px bg-white/[0.05]" />
+                  <div className="h-px bg-[#e2e8f0]" />
 
                   <button
-                    className="w-full py-2 rounded-lg text-sm font-semibold text-violet-300 transition-all duration-150 hover:text-violet-100 hover:bg-violet-500/10 active:scale-[0.98] flex items-center justify-center gap-1.5"
-                    style={{ border: '1px solid rgba(139,92,246,0.25)' }}
+                    className="w-full py-2 rounded-lg text-sm font-semibold text-violet-600 transition-all duration-150 hover:text-violet-700 hover:bg-violet-50 active:scale-[0.98] flex items-center justify-center gap-1.5"
+                    style={{ border: '1px solid #e2e8f0' }}
                   >
                     View Details
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

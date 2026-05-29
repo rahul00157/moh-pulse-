@@ -8,9 +8,9 @@ export default function ScoreCard({ title, score, subtitle, trend, color, glowCo
     <div
       className="rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden"
       style={{
-        backgroundColor: '#111827',
-        border: `1px solid ${borderColor}`,
-        boxShadow: `0 0 28px ${glowColor}, 0 4px 24px rgba(0,0,0,0.45)`,
+        backgroundColor: '#f8fafc',
+        border: `1px solid #e2e8f0`,
+        boxShadow: `0 1px 4px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.04)`,
       }}
     >
       {/* Top gradient accent line */}
@@ -19,15 +19,9 @@ export default function ScoreCard({ title, score, subtitle, trend, color, glowCo
         style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
       />
 
-      {/* Ambient corner glow */}
-      <div
-        className="absolute -top-10 -right-10 w-36 h-36 rounded-full pointer-events-none"
-        style={{ background: `radial-gradient(circle, ${glowColor} 0%, transparent 65%)` }}
-      />
-
       {/* Title + trend badge */}
       <div className="flex items-start justify-between gap-2 relative z-10">
-        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider leading-tight">
+        <p className="text-[11px] font-semibold text-[#64748b] uppercase tracking-wider leading-tight">
           {title}
         </p>
         <span
@@ -81,13 +75,13 @@ export default function ScoreCard({ title, score, subtitle, trend, color, glowCo
             >
               {score}
             </span>
-            <span className="text-[10px] text-slate-500 font-medium mt-0.5">/100</span>
+            <span className="text-[10px] text-[#94a3b8] font-medium mt-0.5">/100</span>
           </div>
         </div>
       </div>
 
       {/* Subtitle */}
-      <p className="text-[11px] text-slate-400 text-center leading-relaxed relative z-10">
+      <p className="text-[11px] text-[#64748b] text-center leading-relaxed relative z-10">
         {subtitle}
       </p>
     </div>

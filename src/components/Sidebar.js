@@ -61,17 +61,9 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-screen w-[240px] flex flex-col z-50 border-r border-white/[0.04]"
-      style={{ backgroundColor: '#0a0f1e' }}
+      className="fixed left-0 top-0 h-screen w-[240px] flex flex-col z-50 border-r border-[#e2e8f0]"
+      style={{ backgroundColor: '#ffffff' }}
     >
-      {/* Subtle top-right purple ambient glow */}
-      <div
-        className="absolute top-0 right-0 w-32 h-32 rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)',
-        }}
-      />
-
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-6 flex-shrink-0">
         <div
@@ -81,16 +73,16 @@ export default function Sidebar() {
           M
         </div>
         <div>
-          <p className="text-white font-bold text-[15px] leading-none">MOH Pulse</p>
-          <p className="text-[#4a5568] text-[10px] mt-1 leading-none tracking-wide uppercase">Marketing Dashboard</p>
+          <p className="text-[#0f172a] font-bold text-[15px] leading-none">MOH Pulse</p>
+          <p className="text-[#94a3b8] text-[10px] mt-1 leading-none tracking-wide uppercase">Marketing Dashboard</p>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="mx-5 h-px bg-white/[0.06] flex-shrink-0" />
+      <div className="mx-5 h-px bg-[#e2e8f0] flex-shrink-0" />
 
       {/* Nav section label */}
-      <p className="px-5 pt-5 pb-2 text-[10px] font-semibold tracking-widest uppercase text-[#2d3748]">
+      <p className="px-5 pt-5 pb-2 text-[10px] font-semibold tracking-widest uppercase text-[#94a3b8]">
         Navigation
       </p>
 
@@ -105,11 +97,11 @@ export default function Sidebar() {
               className={`
                 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group relative
                 ${isActive
-                  ? 'text-white'
-                  : 'text-[#4a5568] hover:text-[#a78bfa] hover:bg-white/[0.04]'
+                  ? 'text-[#0f172a]'
+                  : 'text-[#64748b] hover:text-[#7c3aed] hover:bg-[#f5f3ff]'
                 }
               `}
-              style={isActive ? { backgroundColor: 'rgba(124,58,237,0.15)' } : {}}
+              style={isActive ? { backgroundColor: 'rgba(124,58,237,0.08)' } : {}}
             >
               {/* Active left bar */}
               {isActive && (
@@ -122,7 +114,7 @@ export default function Sidebar() {
               {/* Icon */}
               <span
                 className={`flex-shrink-0 transition-colors duration-150 ${
-                  isActive ? 'text-[#a78bfa]' : 'text-[#2d3748] group-hover:text-[#a78bfa]'
+                  isActive ? 'text-[#7c3aed]' : 'text-[#94a3b8] group-hover:text-[#7c3aed]'
                 }`}
               >
                 {icon}
@@ -135,7 +127,7 @@ export default function Sidebar() {
               {isActive && (
                 <span
                   className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: '#a78bfa' }}
+                  style={{ backgroundColor: '#7c3aed' }}
                 />
               )}
             </Link>
@@ -146,7 +138,7 @@ export default function Sidebar() {
       {/* Bottom section */}
       <div className="flex-shrink-0 px-4 pb-6 pt-4 space-y-3">
         {/* Divider */}
-        <div className="h-px bg-white/[0.06]" />
+        <div className="h-px bg-[#e2e8f0]" />
 
         {/* Fix it for me button */}
         <button

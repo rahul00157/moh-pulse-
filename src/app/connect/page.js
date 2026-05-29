@@ -48,8 +48,8 @@ function ConnectContent() {
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Connect Accounts</h1>
-        <p className="text-[#4a5568] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-[#0f172a]">Connect Accounts</h1>
+        <p className="text-[#64748b] text-sm mt-1">
           Link your ad platforms to start pulling data into MOH Pulse.
         </p>
       </div>
@@ -77,8 +77,8 @@ function ConnectContent() {
       <div className="flex flex-col gap-4">
         {/* ── Meta Ads card ── */}
         <div
-          className="rounded-2xl border border-white/[0.06] p-6 flex items-center justify-between gap-4"
-          style={{ backgroundColor: '#0a0f1e' }}
+          className="rounded-2xl border border-[#e2e8f0] p-6 flex items-center justify-between gap-4"
+          style={{ backgroundColor: '#f8fafc' }}
         >
           <div className="flex items-center gap-4">
             <div
@@ -90,17 +90,17 @@ function ConnectContent() {
               </svg>
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">Meta Ads</p>
-              <p className="text-[#4a5568] text-xs mt-0.5">Facebook & Instagram advertising</p>
+              <p className="text-[#0f172a] font-semibold text-sm">Meta Ads</p>
+              <p className="text-[#64748b] text-xs mt-0.5">Facebook & Instagram advertising</p>
             </div>
           </div>
 
           {loading ? (
-            <div className="w-5 h-5 rounded-full border-2 border-[#4a5568] border-t-transparent animate-spin flex-shrink-0" />
+            <div className="w-5 h-5 rounded-full border-2 border-[#e2e8f0] border-t-violet-500 animate-spin flex-shrink-0" />
           ) : isMetaConnected ? (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 flex-shrink-0">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-              <span className="text-emerald-400 text-sm font-medium">Connected</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 flex-shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+              <span className="text-emerald-700 text-sm font-medium">Connected</span>
             </div>
           ) : (
             <button
@@ -108,7 +108,7 @@ function ConnectContent() {
               className="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
               style={{
                 background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-                boxShadow: '0 0 16px rgba(124,58,237,0.35)',
+                boxShadow: '0 0 16px rgba(124,58,237,0.25)',
               }}
             >
               Connect Meta
@@ -118,12 +118,12 @@ function ConnectContent() {
 
         {/* ── Google Ads card ── */}
         <div
-          className="rounded-2xl border border-white/[0.06] p-6 flex items-center justify-between gap-4"
-          style={{ backgroundColor: '#0a0f1e' }}
+          className="rounded-2xl border border-[#e2e8f0] p-6 flex items-center justify-between gap-4"
+          style={{ backgroundColor: '#f8fafc' }}
         >
           <div className="flex items-center gap-4">
             {/* Google G logo */}
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-white">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-white border border-[#e2e8f0]">
               <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -132,20 +132,20 @@ function ConnectContent() {
               </svg>
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">Google Ads</p>
-              <p className="text-[#4a5568] text-xs mt-0.5">Search & Display advertising</p>
+              <p className="text-[#0f172a] font-semibold text-sm">Google Ads</p>
+              <p className="text-[#64748b] text-xs mt-0.5">Search & Display advertising</p>
             </div>
           </div>
 
           {/* Not Connected status */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-red-500/20 bg-red-500/10">
-              <span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-              <span className="text-red-400 text-xs font-medium">Not Connected</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50">
+              <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+              <span className="text-red-600 text-xs font-medium">Not Connected</span>
             </div>
             <button
               disabled
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-white/40 border border-white/[0.06] cursor-not-allowed"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-[#94a3b8] border border-[#e2e8f0] cursor-not-allowed bg-white"
             >
               Connect Google
             </button>
@@ -158,14 +158,14 @@ function ConnectContent() {
 
 export default function ConnectPage() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#080d1a' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#ffffff' }}>
       <Navbar />
       <Sidebar />
-      <main className="ml-[240px] pt-[60px] min-h-screen p-8" style={{ backgroundColor: '#080d1a' }}>
+      <main className="ml-[240px] pt-[60px] min-h-screen p-8" style={{ backgroundColor: '#ffffff' }}>
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-40">
-              <div className="w-5 h-5 rounded-full border-2 border-[#4a5568] border-t-transparent animate-spin" />
+              <div className="w-5 h-5 rounded-full border-2 border-[#e2e8f0] border-t-violet-500 animate-spin" />
             </div>
           }
         >
